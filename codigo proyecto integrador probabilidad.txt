@@ -1,0 +1,439 @@
+#########################################################
+# PROYECTO INTEGRADOR
+#########################################################
+
+library(ggplot2)
+
+#########################################################
+# INFORMACIÓN GENERAL
+#########################################################
+
+cat("\n====================================\n")
+cat("DESCRIPCIÓN DE LA BASE DE DATOS\n")
+cat("====================================\n")
+
+cat("Número de observaciones:", nrow(base_300), "\n")
+cat("Número de variables:", ncol(base_300), "\n")
+
+#########################################################
+# CALIDAD DE DATOS
+#########################################################
+
+cat("\n====================================\n")
+cat("CALIDAD DE LOS DATOS\n")
+cat("====================================\n")
+
+print(colSums(is.na(base_300)))
+
+cat("\nDuplicados encontrados:\n")
+print(sum(duplicated(base_300)))
+
+#########################################################
+# TABLA DESCRIPTIVA
+#########################################################
+
+tabla_resumen <- data.frame(
+  Variable = c(
+    "Ventas Totales",
+    "Costo Venta Total",
+    "Valor Nacional"
+  ),
+  
+  Media = round(c(
+    mean(base_300$ventas_totales),
+    mean(base_300$costo_venta_total),
+    mean(base_300$valor_nacional)
+  ),2),
+  
+  Mediana = round(c(
+    median(base_300$ventas_totales),
+    median(base_300$costo_venta_total),
+    median(base_300$valor_nacional)
+  ),2),
+  
+  Desv_Estandar = round(c(
+    sd(base_300$ventas_totales),
+    sd(base_300$costo_venta_total),
+    sd(base_300$valor_nacional)
+  ),2),
+  
+  Minimo = round(c(
+    min(base_300$ventas_totales),
+    min(base_300$costo_venta_total),
+    min(base_300$valor_nacional)
+  ),2),
+  
+  Maximo = round(c(
+    max(base_300$ventas_totales),
+    max(base_300$costo_venta_total),
+    max(base_300$valor_nacional)
+  ),2),
+  
+  CV = round(c(
+    sd(base_300$ventas_totales) /
+      mean(base_300$ventas_totales) * 100,
+    
+    sd(base_300$costo_venta_total) /
+      mean(base_300$costo_venta_total) * 100,
+    
+    sd(base_300$valor_nacional) /
+      mean(base_300$valor_nacional) * 100
+  ),2)
+)
+
+cat("\n====================================\n")
+cat("ESTADÍSTICAS DESCRIPTIVAS\n")
+cat("====================================\n")
+
+print(tabla_resumen)
+
+#########################################################
+# HISTOGRAMAS
+#########################################################
+
+ggplot(base_300,
+       aes(x = ventas_totales)) +
+  geom_histogram(
+    bins = 20,
+    fill = "#2874A6",
+    color = "white"
+  ) +
+  scale_x_log10() +
+  theme_minimal() +
+  labs(
+    title = "Distribución de Ventas Totales",
+    subtitle = "Escala logarítmica"
+  )
+
+ggplot(base_300,
+       aes(x = costo_venta_total)) +
+  geom_histogram(
+    bins = 20,
+    fill = "#27AE60",
+    color = "white"
+  ) +
+  scale_x_log10() +
+  theme_minimal() +
+  labs(
+    title = "Distribución del Costo de Venta",
+    subtitle = "Escala logarítmica"
+  )
+
+ggplot(base_300,
+       aes(x = valor_nacional)) +
+  geom_histogram(
+    bins = 20,
+    fill = "#8E44AD",
+    color = "white"
+  ) +
+  scale_x_log10() +
+  theme_minimal() +
+  labs(
+    title = "Distribución del Valor Nacional",
+    subtitle = "Escala logarítmica"
+  )
+
+#########################################################
+# BOXPLOTS
+#########################################################
+
+ggplot(base_300,
+       aes(y = ventas_totales)) +
+  geom_boxplot(
+    fill = "#F39C12",
+    outlier.color = "red"
+  ) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(
+    title = "Boxplot Ventas Totales"
+  )
+
+ggplot(base_300,
+       aes(y = costo_venta_total)) +
+  geom_boxplot(
+    fill = "#58D68D",
+    outlier.color = "red"
+  ) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(
+    title = "Boxplot Costo de Venta"
+  )
+
+ggplot(base_300,
+       aes(y = valor_nacional)) +
+  geom_boxplot(
+    fill = "#BB8FCE",
+    outlier.color = "red"
+  ) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(
+    title = "Boxplot Valor Nacional"
+  )
+
+#########################################################
+# TIPO DE MERCADERÍA
+#########################################################
+
+freq_tipo <- as.data.frame(
+  table(base_300$tipo_merc)
+)
+
+names(freq_tipo) <- c(
+  "Codigo",
+  "Frecuencia"
+)
+
+freq_tipo$Tipo <- c(
+  "Al por Mayor",
+  "Al por Menor"
+)
+
+freq_tipo$Porcentaje <- round(
+  freq_tipo$Frecuencia /
+    sum(freq_tipo$Frecuencia) * 100,
+  2
+)
+
+cat("\n====================================\n")
+cat("TIPO DE MERCADERÍA\n")
+cat("====================================\n")
+
+print(freq_tipo)
+
+#########################################################
+# BARRAS TIPO MERCADERÍA
+#########################################################
+
+ggplot(
+  freq_tipo,
+  aes(
+    x = Tipo,
+    y = Frecuencia,
+    fill = Tipo
+  )
+) +
+  geom_col(width = 0.6) +
+  geom_text(
+    aes(
+      label = paste0(
+        Porcentaje,
+        "%"
+      )
+    ),
+    vjust = -0.4,
+    size = 5
+  ) +
+  scale_fill_manual(
+    values = c(
+      "#2E86C1",
+      "#E67E22"
+    )
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Distribución del Tipo de Mercadería",
+    x = "",
+    y = "Frecuencia"
+  )
+
+#########################################################
+# PASTEL
+#########################################################
+
+pie(
+  freq_tipo$Frecuencia,
+  labels = paste0(
+    freq_tipo$Tipo,
+    "\n",
+    freq_tipo$Porcentaje,
+    "%"
+  ),
+  col = c(
+    "#2E86C1",
+    "#E67E22"
+  ),
+  main = "Tipo de Mercadería",
+  border = "white"
+)
+
+#########################################################
+# ACTIVIDAD PRINCIPAL
+#########################################################
+
+freq_ciiu <- as.data.frame(
+  sort(
+    table(base_300$ciiu_seccion_desc),
+    decreasing = TRUE
+  )
+)
+
+names(freq_ciiu) <- c(
+  "Actividad",
+  "Frecuencia"
+)
+
+freq_ciiu$Porcentaje <- round(
+  freq_ciiu$Frecuencia /
+    sum(freq_ciiu$Frecuencia) * 100,
+  2
+)
+
+cat("\n====================================\n")
+cat("ACTIVIDAD PRINCIPAL\n")
+cat("====================================\n")
+
+print(freq_ciiu)
+
+
+#########################################################
+# TABLA DE CONTINGENCIA
+#########################################################
+
+cat("\n====================================\n")
+cat("TABLA DE CONTINGENCIA\n")
+cat("====================================\n")
+
+tabla_cont <- table(
+  base_300$tipo_merc,
+  base_300$ciiu_seccion_desc
+)
+
+print(tabla_cont)
+
+#########################################################
+# CORRELACIONES
+#########################################################
+
+corr1 <- cor(
+  base_300$ventas_totales,
+  base_300$costo_venta_total
+)
+
+corr2 <- cor(
+  base_300$ventas_totales,
+  base_300$valor_nacional
+)
+
+cat("\n====================================\n")
+cat("CORRELACIONES\n")
+cat("====================================\n")
+
+cat(
+  "\nVentas Totales vs Costo Venta:",
+  round(corr1,4)
+)
+
+cat(
+  "\nVentas Totales vs Valor Nacional:",
+  round(corr2,4)
+)
+
+#########################################################
+# DISPERSIÓN
+#########################################################
+
+ggplot(
+  base_300,
+  aes(
+    x = ventas_totales,
+    y = costo_venta_total
+  )
+) +
+  geom_point(
+    color = "#2874A6",
+    alpha = 0.7
+  ) +
+  geom_smooth(
+    method = "lm",
+    color = "red",
+    se = FALSE
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Ventas Totales vs Costo de Venta"
+  )
+
+#########################################################
+# RESUMEN FINAL
+#########################################################
+
+cat("\n====================================\n")
+cat("RESUMEN FINAL\n")
+cat("====================================\n")
+
+print(tabla_resumen)
+
+cat(
+  "\nCorrelación Ventas-Costo:",
+  round(corr1,4)
+)
+
+cat(
+  "\nCorrelación Ventas-Valor Nacional:",
+  round(corr2,4)
+)
+#########################################################
+# TOP 8 ACTIVIDADES - VERSIÓN CORREGIDA
+#########################################################
+
+top_ciiu <- head(freq_ciiu, 8)
+
+# Acortar textos largos
+top_ciiu$Actividad_Corta <- c(
+  "Comercio",
+  "Manufactura",
+  "Transporte",
+  "Información",
+  "Servicios Adm.",
+  "Otros Servicios",
+  "Enseñanza",
+  "Salud"
+)
+
+ggplot(
+  top_ciiu,
+  aes(
+    x = Frecuencia,
+    y = reorder(
+      Actividad_Corta,
+      Frecuencia
+    )
+  )
+) +
+  geom_col(
+    fill = "#2980B9"
+  ) +
+  geom_text(
+    aes(
+      label = paste0(
+        Frecuencia,
+        " (",
+        Porcentaje,
+        "%)"
+      )
+    ),
+    hjust = -0.1,
+    size = 4
+  ) +
+  labs(
+    title = "Actividades Económicas Más Frecuentes",
+    x = "Frecuencia",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(
+      hjust = 0.5,
+      face = "bold"
+    )
+  ) +
+  expand_limits(x = max(top_ciiu$Frecuencia) * 1.15)
+cat("\n====================================\n")
+cat("FIN DEL ANÁLISIS\n")
+cat("====================================\n")
